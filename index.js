@@ -1,9 +1,19 @@
 import express from "express";
 import { createServer } from "node:http";
 import { Server } from "socket.io";
-import fs from 'fs/promises';
 import multer from "multer";
 import cors from 'cors';
+import AWS from "aws-sdk";
+
+AWS.config.update({
+  accessKeyId: 'AKIAYYVZHGALAVPS3DP2',
+  secretAccessKey: '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',
+  region: 'us-east-2',
+});
+
+const s3 = new AWS.S3();
+
+
 
 const app = express();
 const server = createServer(app);
@@ -16,11 +26,23 @@ app.use(express.urlencoded({ extended: true }));
 
 app.post("/uploadRecordedVideo",multer().single("video"),(req,res)=>{
   console.log(req);
-    console.log(req.file);
-    fs.writeFile(req.file.originalname,req.file.buffer);
+    // console.log(req.file);
+    const params = {
+      Bucket: 'nitin-videos-record',
+      Key: req.file.originalname,
+      Body: req.file.buffer,
+    };
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Error uploading file');
+      }
+    // fs.writeFile(req.file.originalname,req.file.buffer);
     res.send("file received");
 
 })
+}
+);
 
 const rideIdToSocketId = new Map();
 
