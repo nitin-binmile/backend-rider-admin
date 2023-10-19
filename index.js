@@ -24,6 +24,9 @@ app.use(express.urlencoded({ extended: true }));
  
 // app.use(express.static('public'))
 
+// process.setMaxListeners(0);
+// io.setMaxListeners(0);   
+
 app.post("/uploadRecordedVideo",multer().single("video"),(req,res)=>{
   console.log(req);
     // console.log(req.file);
@@ -52,7 +55,7 @@ const sendRidesInfo = ()=>{
   io.to("admin").emit("totalActiveRides",rideIdToSocketId.size>0?Array.from(rideIdToSocketId.keys()):[]);
 }
 io.on("connection", (socket) => {
-  console.log("new connection");
+  console.log("new connection",io.engine.clientsCount);
 
   socket.on("registerRide", ({ rideId }) => {
     rideIdToSocketId.set(rideId, socket.id);
@@ -73,7 +76,7 @@ io.on("connection", (socket) => {
   socket.on("monitorRide",(ride)=>{
     console.log(ride);
     const rider = rideIdToSocketId.get(ride);
-    console.log(rider);
+    // console.log(rider);
     io.to(rider).emit("monitorRide",{adminId:socket.id});
   });
   socket.on("acceptMonitorRide",({offer,adminId})=>{
