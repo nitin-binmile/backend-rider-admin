@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(express.static('public'))
 
 // process.setMaxListeners(0);
-// io.setMaxListeners(0);   
+io.setMaxListeners(0);   
 
 app.post("/uploadRecordedVideo",multer().single("video"),(req,res)=>{
   console.log(req);
